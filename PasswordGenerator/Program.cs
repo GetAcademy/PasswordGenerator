@@ -34,9 +34,8 @@ namespace PasswordGenerator
                                length = 8
                                we want "abc" + "efgh"                               
                  */
-                pattern = pattern.Substring(0, randomIndex)
-                        + pattern.Substring(randomIndex + 1, pattern.Length - randomIndex - 1);
 
+                pattern = pattern.Remove(randomIndex, 1);
                 if (category == 'l') password += GetRandomLowerCaseLetter();
                 else if (category == 'L') password += GetRandomUpperCaseLetter();
                 else if (category == 'd') password += GetRandomDigit();
@@ -47,7 +46,7 @@ namespace PasswordGenerator
 
         private static char GetRandomSpecialCharacter()
         {
-            var allSpecialCharacters = "!\"#¤%&/(){}[]";
+            const string allSpecialCharacters = "!\"#¤%&/(){}[]";
             var index = Random.Next(0, allSpecialCharacters.Length - 1);
             return allSpecialCharacters[index];
         }
@@ -79,33 +78,35 @@ namespace PasswordGenerator
             var lengthStr = args[0];
             var options = args[1];
 
-            //foreach (var character in options)
-            //{
-            //    if (character != 'l'
-            //        && character != 'L'
-            //        && character != 'd'
-            //        && character != 's')
-            //    {
-            //        return false;
-            //    }
-            //}
-            if (options.Any(character => character != 'l'
-                                         && character != 'L'
-                                         && character != 'd'
-                                         && character != 's'))
+            if (!IsValidPattern(options)) return false;
+            return IsValidLength(lengthStr);
+        }
+
+        private static bool IsValidLength(string lengthStr)
+        {
+            foreach (var character in lengthStr)
             {
-                return false;
+                if (!char.IsDigit(character))
+                {
+                    return false;
+                }
             }
 
-            //foreach (var character in lengthStr)
-            //{
-            //    if (!char.IsDigit(character))
-            //    {
-            //        return false;
-            //    }
-            //}
-            //return true;
-            return lengthStr.All(char.IsDigit);
+            return true;
+        }
+
+        private static bool IsValidPattern(string options)
+        {
+            foreach (var character in options)
+            {
+                const string validCharacters = "lLds";
+                if (!validCharacters.Contains(character))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static void ShowHelpText()
